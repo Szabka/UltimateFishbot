@@ -7,30 +7,26 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace UltimateFishBot.Classes.BodyParts
-{
-    class Ears
-    {
+namespace UltimateFishBot.Classes.BodyParts {
+    class Ears {
         private MMDevice SndDevice;
         private Queue<int> m_volumeQueue;
         private int tickrate = 50; //ms pause between sound checks
 
         private const int MAX_VOLUME_QUEUE_LENGTH = 5;
 
-        public Ears()
-        {
+        public Ears() {
             m_volumeQueue = new Queue<int>();
             m_volumeQueue.Enqueue(0);
         }
 
-        public async Task<bool> Listen(int millisecondsToListen, CancellationToken cancellationToken)
-        {
+        public async Task<bool> Listen(int millisecondsToListen, CancellationToken cancellationToken) {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             MMDeviceEnumerator SndDevEnum = new MMDeviceEnumerator();
-            if (Properties.Settings.Default.AudioDevice != "") { 
+            if (Properties.Settings.Default.AudioDevice != "") {
                 SndDevice = SndDevEnum.GetDevice(Properties.Settings.Default.AudioDevice);
-            } else { 
+            } else {
                 SndDevice = SndDevEnum.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia);
             }
             Func<bool> heardFish;
@@ -58,8 +54,7 @@ namespace UltimateFishBot.Classes.BodyParts
             return false;
         }
 
-        private bool ListenTimerTickAvg()
-        {
+        private bool ListenTimerTickAvg() {
             // Get the current level
             int currentVolumnLevel = (int)(SndDevice.AudioMeterInformation.MasterPeakValue * 100);
             int avgVol = GetAverageVolume();
@@ -73,15 +68,14 @@ namespace UltimateFishBot.Classes.BodyParts
 
             m_volumeQueue.Enqueue(currentVolumnLevel);
             // Keep a running queue of the last X sounds as a reference point
-            if (m_volumeQueue.Count >= MAX_VOLUME_QUEUE_LENGTH) { 
+            if (m_volumeQueue.Count >= MAX_VOLUME_QUEUE_LENGTH) {
                 m_volumeQueue.Dequeue();
             }
             return hear;
 
         }
 
-        private int GetAverageVolume()
-        {
+        private int GetAverageVolume() {
             return (int)m_volumeQueue.Average();
         }
     }

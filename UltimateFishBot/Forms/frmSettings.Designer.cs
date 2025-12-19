@@ -220,9 +220,9 @@
             // 
             // pgbSoundLevel
             // 
-            this.pgbSoundLevel.Location = new System.Drawing.Point(278, 99);
+            this.pgbSoundLevel.Location = new System.Drawing.Point(318, 99);
             this.pgbSoundLevel.Name = "pgbSoundLevel";
-            this.pgbSoundLevel.Size = new System.Drawing.Size(182, 21);
+            this.pgbSoundLevel.Size = new System.Drawing.Size(142, 21);
             this.pgbSoundLevel.TabIndex = 18;
             // 
             // LabelAudioDeviceDesc
@@ -242,9 +242,9 @@
             this.cmbAudio.FormattingEnabled = true;
             this.cmbAudio.Items.AddRange(new object[] {
             "Default"});
-            this.cmbAudio.Location = new System.Drawing.Point(173, 99);
+            this.cmbAudio.Location = new System.Drawing.Point(101, 99);
             this.cmbAudio.Name = "cmbAudio";
-            this.cmbAudio.Size = new System.Drawing.Size(99, 21);
+            this.cmbAudio.Size = new System.Drawing.Size(211, 21);
             this.cmbAudio.TabIndex = 3;
             this.cmbAudio.SelectedIndexChanged += new System.EventHandler(this.cmbAudio_SelectedIndexChanged);
             // 

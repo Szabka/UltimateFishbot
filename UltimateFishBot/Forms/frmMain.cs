@@ -8,107 +8,88 @@ using UltimateFishBot.Classes.Helpers;
 using UltimateFishBot.Forms;
 using UltimateFishBot.Properties;
 
-namespace UltimateFishBot
-{
-    public partial class frmMain : Form, IManagerEventHandler
-    {
+namespace UltimateFishBot {
+    public partial class frmMain : Form, IManagerEventHandler {
 
-        public enum KeyModifier
-        {
+        public enum KeyModifier {
             None = 0,
             Alt = 1,
             Control = 2,
             Shift = 4
         }
 
-        public enum HotKey
-        {
+        public enum HotKey {
             StartStop = 0,
             CursorCapture = 1
         }
 
-        public frmMain()
-        {
+        public frmMain() {
             InitializeComponent();
 
-            m_manager = new Manager(this, new Progress<string>(text =>
-            {
+            m_manager = new Manager(this, new Progress<string>(text => {
                 lblStatus.Text = text;
             }));
         }
 
-        private async void frmMain_Load(object sender, EventArgs e)
-        {
-            btnStart.Text      = Translate.GetTranslate("frmMain", "BUTTON_START");
-            btnStop.Text       = Translate.GetTranslate("frmMain", "BUTTON_STOP");
-            btnSettings.Text   = Translate.GetTranslate("frmMain", "BUTTON_SETTINGS");
+        private void frmMain_Load(object sender, EventArgs e) {
+            btnStart.Text = Translate.GetTranslate("frmMain", "BUTTON_START");
+            btnStop.Text = Translate.GetTranslate("frmMain", "BUTTON_STOP");
+            btnSettings.Text = Translate.GetTranslate("frmMain", "BUTTON_SETTINGS");
             btnStatistics.Text = Translate.GetTranslate("frmMain", "BUTTON_STATISTICS");
-            btnHowTo.Text      = Translate.GetTranslate("frmMain", "BUTTON_HTU");
-            btnClose.Text      = Translate.GetTranslate("frmMain", "BUTTON_EXIT");
-            btnAbout.Text      = Translate.GetTranslate("frmMain", "BUTTON_ABOUT");
-            lblStatus.Text     = Translate.GetTranslate("frmMain", "LABEL_STOPPED");
-            this.Text          = "UltimateFishBot - v " + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            btnHowTo.Text = Translate.GetTranslate("frmMain", "BUTTON_HTU");
+            btnClose.Text = Translate.GetTranslate("frmMain", "BUTTON_EXIT");
+            btnAbout.Text = Translate.GetTranslate("frmMain", "BUTTON_ABOUT");
+            lblStatus.Text = Translate.GetTranslate("frmMain", "LABEL_STOPPED");
+            var buildDate = GetBuildDate();
+            this.Text = $"UFB V{System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}B{buildDate:yyyy-MM-dd}";
             ReloadHotkeys();
-            await CheckStatus();
+            lblWarn.Text = "";
+            //await CheckStatus();
         }
 
-        private async Task CheckStatus()
-        {
+        private async Task CheckStatus() {
             lblWarn.Text = Translate.GetTranslate("frmMain", "LABEL_CHECKING_STATUS");
             lblWarn.Parent = PictureBox1;
 
-            try
-            {
+            try {
                 string result = await (new WebClient().DownloadStringTaskAsync("http://www.robpaulson.com/fishbot/status.txt"));
-                if (result.ToLower().Trim() != "safe")
-                {
-                    lblWarn.Text      = Translate.GetTranslate("frmMain", "LABEL_NO_LONGER_SAFE");
+                if (result.ToLower().Trim() != "safe") {
+                    lblWarn.Text = Translate.GetTranslate("frmMain", "LABEL_NO_LONGER_SAFE");
                     lblWarn.ForeColor = Color.Red;
                     lblWarn.BackColor = Color.Black;
-                }
-                else
-                {
+                } else {
                     lblWarn.Visible = false;
                 }
-            }
-            catch (Exception ex)
-            {
+            } catch (Exception ex) {
                 lblWarn.Text = (Translate.GetTranslate("frmMain", "LABEL_COULD_NOT_CHECK_STATUS") + ex.ToString());
             }
         }
 
-        private async void btnStart_Click(object sender, EventArgs e)
-        {
+        private async void btnStart_Click(object sender, EventArgs e) {
             await m_manager.StartOrResumeOrPause();
         }
 
-        private void btnStop_Click(object sender, EventArgs e)
-        {
+        private void btnStop_Click(object sender, EventArgs e) {
             m_manager.Stop();
         }
 
-        private void btnSettings_Click(object sender, EventArgs e)
-        {
+        private void btnSettings_Click(object sender, EventArgs e) {
             frmSettings.GetForm(this).Show();
         }
 
-        private void btnStatistics_Click(object sender, EventArgs e)
-        {
+        private void btnStatistics_Click(object sender, EventArgs e) {
             frmStats.GetForm(m_manager).Show();
         }
 
-        private void btnHowTo_Click(object sender, EventArgs e)
-        {
+        private void btnHowTo_Click(object sender, EventArgs e) {
             frmDirections.GetForm.Show();
         }
 
-        private void btnClose_Click(object sender, EventArgs e)
-        {
+        private void btnClose_Click(object sender, EventArgs e) {
             this.Close();
         }
 
-        protected override void WndProc(ref Message m)
-        {
+        protected override void WndProc(ref Message m) {
             base.WndProc(ref m);
 
             if (m.Msg == WM_HOTKEY) {
@@ -166,10 +147,8 @@ namespace UltimateFishBot
             return modifiers;
         }
 
-        private KeyModifier RemoveAndReturnModifier(ref Keys key, Keys keyModifier, KeyModifier modifier)
-        {
-            if ((key & keyModifier) != 0)
-            {
+        private KeyModifier RemoveAndReturnModifier(ref Keys key, Keys keyModifier, KeyModifier modifier) {
+            if ((key & keyModifier) != 0) {
                 key &= ~keyModifier;
                 return modifier;
             }
@@ -177,8 +156,7 @@ namespace UltimateFishBot
             return KeyModifier.None;
         }
 
-        private void frmMain_FormClosing(object sender, FormClosingEventArgs e)
-        {
+        private void frmMain_FormClosing(object sender, FormClosingEventArgs e) {
             UnregisterHotKeys();
         }
 
@@ -186,49 +164,48 @@ namespace UltimateFishBot
         private static int WM_HOTKEY = 0x0312;
 
 
-        private void btnAbout_Click(object sender, EventArgs e)
-        {
+        private void btnAbout_Click(object sender, EventArgs e) {
             about.GetForm.Show();
         }
 
-        private void ToggleButtonEnabledRunning()
-        {
+        private void ToggleButtonEnabledRunning() {
             btnSettings.Enabled = false;
-            btnStop.Enabled     = true;
+            btnStop.Enabled = true;
         }
 
-        private void ToggleButtonEnabledNotRunning()
-        {
+        private void ToggleButtonEnabledNotRunning() {
             btnSettings.Enabled = true;
-            btnStop.Enabled     = false;
+            btnStop.Enabled = false;
         }
 
-        public void Started()
-        {
+        public void Started() {
             ToggleButtonEnabledRunning();
-            btnStart.Text   = Translate.GetTranslate("frmMain", "BUTTON_PAUSE");
+            btnStart.Text = Translate.GetTranslate("frmMain", "BUTTON_PAUSE");
             lblStatus.Image = Resources.online;
         }
 
-        public void Stopped()
-        {
+        public void Stopped() {
             ToggleButtonEnabledNotRunning();
-            btnStart.Text   = Translate.GetTranslate("frmMain", "BUTTON_START");
+            btnStart.Text = Translate.GetTranslate("frmMain", "BUTTON_START");
             lblStatus.Image = Resources.offline;
         }
 
-        public void Resumed()
-        {
+        public void Resumed() {
             ToggleButtonEnabledRunning();
-            btnStart.Text   = Translate.GetTranslate("frmMain", "BUTTON_PAUSE");
+            btnStart.Text = Translate.GetTranslate("frmMain", "BUTTON_PAUSE");
             lblStatus.Image = Resources.online;
         }
 
-        public void Paused()
-        {
+        public void Paused() {
             btnSettings.Enabled = true;
-            btnStart.Text       = Translate.GetTranslate("frmMain", "BUTTON_RESUME");
-            lblStatus.Image     = Resources.online;
+            btnStart.Text = Translate.GetTranslate("frmMain", "BUTTON_RESUME");
+            lblStatus.Image = Resources.online;
+        }
+
+        private static DateTime GetBuildDate() {
+            var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            var filePath = assembly.Location;
+            return System.IO.File.GetLastWriteTime(filePath);
         }
     }
 }

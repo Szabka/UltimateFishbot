@@ -7,24 +7,24 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using AForge;
 using AForge.Imaging;
 using AForge.Imaging.Filters;
 using Serilog;
 using UltimateFishBot.Classes.Helpers;
 
-namespace UltimateFishBot.Classes.BodyParts
-{
-    
-    class Eyes
-    {
+namespace UltimateFishBot.Classes.BodyParts {
+
+    class Eyes {
         private Win32.CursorInfo m_noFishCursor;
         private IntPtr Wow;
         private Bitmap capturedCursorIcon;
         private Dictionary<Win32.Point, int> bobberPosDict;
         private Bitmap background;
+        private Bitmap castbmp;
         private Rectangle wowRectangle;
 
-        public Eyes(IntPtr wowWindow)  {
+        public Eyes(IntPtr wowWindow) {
             SetWow(wowWindow);
             bobberPosDict = new Dictionary<Win32.Point, int>();
         }
@@ -33,21 +33,14 @@ namespace UltimateFishBot.Classes.BodyParts
             this.Wow = wowWindow;
             m_noFishCursor = Win32.GetNoFishCursor(this.Wow);
             wowRectangle = Win32.GetWowRectangle(this.Wow);
-            if (System.IO.File.Exists("capturedcursor.bmp")) {
-                capturedCursorIcon = new Bitmap("capturedcursor.bmp", true);
+            if (System.IO.File.Exists("capturedcursor.png")) {
+                capturedCursorIcon = new Bitmap("capturedcursor.png", true);
             }
 
         }
 
-        // capture in grayscale
-        public void updateBackground() {
-            background = new Grayscale(0.3725, 0.6154, 0.0121).Apply(Win32.CaptureWindow(Wow));
-            background = new Pixellate().Apply(background);
-
-        }
-
-        public async Task<Win32.Point> LookForBobber(CancellationToken cancellationToken)
-        {
+        public async Task<Win32.Point> LookForBobber(CancellationToken cancellationToken) {
+            String imagePrefix = "sc_" + DateTime.UtcNow.Ticks;
             Win32.Rect scanArea;
             if (!Properties.Settings.Default.customScanArea) {
                 scanArea.Left = wowRectangle.X + wowRectangle.Width / 5;
@@ -63,35 +56,46 @@ namespace UltimateFishBot.Classes.BodyParts
                 //Log.Information("Using custom area");
             }
             Log.Information("Scanning area: " + scanArea.Left.ToString() + " , " + scanArea.Top.ToString() + " , " + scanArea.Right.ToString() + " , " + scanArea.Bottom.ToString() + " cs: " + bobberPosDict.Keys.Count.ToString());
-            Win32.Point bobberPos= new Win32.Point { x = 0, y = 0 };
-            
-            foreach (Win32.Point dp in PointOfScreenDifferences()) {
-                if (await MoveMouseAndCheckCursor(dp.x, dp.y, cancellationToken,2)) {
+            Win32.Point bobberPos = new Win32.Point { x = 0, y = 0 };
+
+            foreach (Win32.Point dp in PointOfScreenDifferences(imagePrefix)) {
+                if (await MoveMouseAndCheckCursor(dp.x, dp.y, cancellationToken, 12)) {
                     bobberPos = dp;
                     Log.Information("Bobber imagescan hit. ({bx},{by})", bobberPos.x, bobberPos.y);
+                    //try to find near pos in the dict that change the cursor
+                    foreach (KeyValuePair<Win32.Point, int> pos in System.Linq.Enumerable.OrderBy(bobberPosDict, (key => key.Value))) {
+                        double cd = PointHelper.CalcDistance(dp, pos.Key);
+                        if (cd < 10.0) {
+                            if (await MoveMouseAndCheckCursor(pos.Key.x, pos.Key.y, cancellationToken, 12)) {
+                                bobberPos = pos.Key;
+                                Log.Information("Bobber position near cache hit. ({bx},{by}) {size} {hitcount} {cd}", bobberPos.x, bobberPos.y, bobberPosDict.Count, pos.Value, cd);
+                                break;
+                            }
+                        }
+                    }
                     break;
                 }
             }
 
-            if (bobberPos.x == 0 && bobberPos.y == 0) { 
+            if (PointHelper.Empty(bobberPos)) {
                 // utilize previous hits
                 foreach (KeyValuePair<Win32.Point, int> pos in System.Linq.Enumerable.OrderBy(bobberPosDict, (key => key.Value))) {
                     // do something with item.Key and item.Value
-                    if (await MoveMouseAndCheckCursor(pos.Key.x, pos.Key.y, cancellationToken,2)) {
+                    if (await MoveMouseAndCheckCursor(pos.Key.x, pos.Key.y, cancellationToken, 12)) {
                         bobberPos = pos.Key;
-                        Log.Information("Bobber position cache hit. ({bx},{by})", bobberPos.x, bobberPos.y);
+                        Log.Information("Bobber position cache hit. ({bx},{by}) {size} {hitcount}", bobberPos.x, bobberPos.y, bobberPosDict.Count, pos.Value);
                         break;
                     }
                 }
             }
-            if (bobberPos.x == 0 && bobberPos.y == 0) { 
+            if (PointHelper.Empty(bobberPos)) {
                 if (Properties.Settings.Default.AlternativeRoute) {
                     bobberPos = await LookForBobberSpiralImpl(scanArea, bobberPos, Properties.Settings.Default.ScanningSteps, Properties.Settings.Default.ScanningRetries, cancellationToken);
                 } else {
                     bobberPos = await LookForBobberImpl(scanArea, bobberPos, Properties.Settings.Default.ScanningSteps, Properties.Settings.Default.ScanningRetries, cancellationToken);
                 }
             }
-            if (bobberPos.x != 0 && bobberPos.y != 0) {
+            if (!PointHelper.Empty(bobberPos)) {
                 int hitcount = 1;
                 if (bobberPosDict.ContainsKey(bobberPos)) {
                     bobberPosDict.TryGetValue(bobberPos, out hitcount);
@@ -99,6 +103,9 @@ namespace UltimateFishBot.Classes.BodyParts
                     bobberPosDict.Remove(bobberPos);
                 }
                 bobberPosDict.Add(bobberPos, hitcount);
+                using (StreamWriter outputFile = new StreamWriter(imagePrefix + ".txt")) {
+                    outputFile.WriteLine(bobberPos.x + ";" + bobberPos.y);
+                }
             }
 
             Log.Information("Bobber scan finished. ({bx},{by})", bobberPos.x, bobberPos.y);
@@ -106,51 +113,79 @@ namespace UltimateFishBot.Classes.BodyParts
 
         }
 
-        private List<Win32.Point> PointOfScreenDifferences()  {
-            Bitmap castbmp = Win32.CaptureWindow(Wow);
+        // reference capture
+        public void updateBackground() {
+            Bitmap cw = Win32.CaptureWindow(Wow);
+            background = cw.Clone(new Rectangle(0, 0, cw.Width, cw.Height), PixelFormat.Format24bppRgb);
+            try {
+                new RedifyFilter().ApplyInPlace(background);
+                //                new ColorFiltering(new IntRange(20, 155), new IntRange(0, 40), new IntRange(0, 20)).ApplyInPlace(background);
+                //                new Pixellate().ApplyInPlace(background);
+            } catch (UnsupportedImageFormatException e) {
+                Log.Information("bg format: " + background.PixelFormat.ToString() + e);
+            }
+        }
 
-            FiltersSequence processingFilter = new FiltersSequence();
-            processingFilter.Add(new Grayscale(0.3725, 0.6154, 0.0121));
-            processingFilter.Add(new Pixellate());
-            processingFilter.Add(new Difference(background));
-            processingFilter.Add(new Threshold(15));
-            processingFilter.Add(new Erosion());
 
+        private List<Win32.Point> PointOfScreenDifferences(String imagePrefix) {
+            Bitmap cw = Win32.CaptureWindow2(Wow);
+            castbmp = cw.Clone(new Rectangle(0, 0, cw.Width, cw.Height), PixelFormat.Format24bppRgb);
+
+            background.Save(imagePrefix + "_bg.png", ImageFormat.Png);
+            castbmp.Save(imagePrefix + "_cs.png", ImageFormat.Png);
             var blobCounter = new BlobCounter();
-            blobCounter.ProcessImage(processingFilter.Apply(castbmp));
+            try {
+                FiltersSequence processingFilter = new FiltersSequence();
+                processingFilter.Add(new RedifyFilter());
+                //                processingFilter.Add(new ColorFiltering(new IntRange(20, 155), new IntRange(0, 40), new IntRange(0, 20)));
+                //                processingFilter.Add(new Pixellate());
+                processingFilter.Add(new Difference(background));
+                //                processingFilter.Add(new Threshold(15));
+                processingFilter.Add(new Erosion());
+
+                Bitmap filteredbmp = processingFilter.Apply(castbmp);
+                filteredbmp.Save(imagePrefix + "_fb.png", ImageFormat.Png);
+                blobCounter.ProcessImage(filteredbmp);
+            } catch (UnsupportedImageFormatException e) {
+                Log.Information("castbmp format: " + castbmp.PixelFormat.ToString() + " " + e);
+            }
+
 
             Rectangle[] brl = blobCounter.GetObjectsRectangles();
             Log.Information("Bobber imagescan brl: {brl}", brl.Length);
             List<Win32.Point> sdl = new List<Win32.Point>();
             foreach (Rectangle br in brl) {
-                Win32.Point pt = new Win32.Point { x = (br.Left + br.Left + br.Right) * 4 / 12, y = (br.Top+br.Bottom+br.Bottom)*4/12 };
+                Win32.Point pt = new Win32.Point { x = (8 * br.Left + 4 * br.Right) / 12, y = (4 * br.Top + 8 * br.Bottom) / 12 };
                 Win32.ClientToScreen(Wow, ref pt);
-                if ((br.Right - br.Left)>9&& (br.Bottom - br.Top)>9) { 
-//                    Win32.Point pt = new Win32.Point { x= wowRectangle.X+(br.Left + br.Right) / 2, y= wowRectangle.Y+(br.Top+br.Bottom)/2 };
-                    Log.Information("Bobber imagescan br: {bx},{by} - {w},{h}", pt.x,pt.y, (br.Right-br.Left),(br.Bottom-br.Top));
-                    sdl.Add(pt);
-//                } else {
-//                    Log.Information("Bobber imagescan ignore br: {bx},{by} - {w},{h}", pt.x,pt.y, (br.Right-br.Left),(br.Bottom-br.Top));
+                if ((br.Right - br.Left) > 9 && (br.Bottom - br.Top) > 4) {
+                    //                    Win32.Point pt = new Win32.Point { x= wowRectangle.X+(br.Left + br.Right) / 2, y= wowRectangle.Y+(br.Top+br.Bottom)/2 };
+                    Log.Information("Bobber imagescan br: {bx},{by} - {w},{h}", pt.x, pt.y, (br.Right - br.Left), (br.Bottom - br.Top));
+                    if (sdl.Count < 10) {
+                        sdl.Add(pt);
+                    } else {
+                        Log.Information("Bobber imagescan overflow br: {bx},{by} - {w},{h}", pt.x, pt.y, (br.Right - br.Left), (br.Bottom - br.Top));
+                    }
+                    //                } else {
                 }
             }
             // debug
             /*
+            */
             Bitmap bmpDst = new Bitmap(castbmp);
             using (var g = Graphics.FromImage(bmpDst)) {
                 foreach (var br in brl) {
-                    if ((br.Right - br.Left) > 11 && (br.Bottom - br.Top) > 11) {
+                    if ((br.Right - br.Left) > 9 && (br.Bottom - br.Top) > 4) {
                         g.DrawRectangle(Pens.White, br);
                     }
                 }
             }
-            bmpDst.Save("sc_"+DateTime.UtcNow.Ticks+".png", ImageFormat.Png);
-            */
+            bmpDst.Save(imagePrefix + "_bd.png", ImageFormat.Png);
 
             return sdl;
         }
 
-        public async Task<bool> SetMouseToBobber(Win32.Point bobberPos, CancellationToken cancellationToken)  {// move mouse to previous recorded position and check shape
-            if (!await MoveMouseAndCheckCursor(bobberPos.x, bobberPos.y, cancellationToken,1)) {
+        public async Task<bool> SetMouseToBobber(Win32.Point bobberPos, CancellationToken cancellationToken) {// move mouse to previous recorded position and check shape
+            if (!await MoveMouseAndCheckCursor(bobberPos.x, bobberPos.y, cancellationToken, 12)) {
                 Log.Information("Bobber lost. ({bx},{by})", bobberPos.x, bobberPos.y);
                 int fixr = 24;
                 Win32.Rect scanArea;
@@ -162,7 +197,7 @@ namespace UltimateFishBot.Classes.BodyParts
                 Win32.Point npos;
                 npos.x = 0;
                 npos.y = 0;
-                npos = await LookForBobberSpiralImpl(scanArea, npos,4,1,cancellationToken);
+                npos = await LookForBobberSpiralImpl(scanArea, npos, 4, 1, cancellationToken);
                 if (npos.x != 0 && npos.y != 0) {
                     // search was successful
                     Log.Information("Bobber found. ({bx},{by})", npos.x, npos.y);
@@ -185,7 +220,7 @@ namespace UltimateFishBot.Classes.BodyParts
             for (int tryCount = 0; tryCount < retries; ++tryCount) {
                 for (int x = (int)(scanArea.Left + (XOFFSET * tryCount)); x < scanArea.Right; x += XPOSSTEP) {
                     for (int y = scanArea.Top; y < scanArea.Bottom; y += YPOSSTEP) {
-                        if (await MoveMouseAndCheckCursor(x, y, cancellationToken,1)) {
+                        if (await MoveMouseAndCheckCursor(x, y, cancellationToken, 10)) {
                             bobberPos.x = x;
                             bobberPos.y = y;
                             return bobberPos;
@@ -229,7 +264,7 @@ namespace UltimateFishBot.Classes.BodyParts
                         }
                         x += dx;
                         y += dy;
-                        if (await MoveMouseAndCheckCursor(x, y, cancellationToken,1)) {
+                        if (await MoveMouseAndCheckCursor(x, y, cancellationToken, 10)) {
                             bobberPos.x = x;
                             bobberPos.y = y;
                             return bobberPos;
@@ -240,14 +275,14 @@ namespace UltimateFishBot.Classes.BodyParts
             return bobberPos;
         }
 
-        private async Task<bool> MoveMouseAndCheckCursor(int x, int y, CancellationToken cancellationToken,int mpy)   {
+        private async Task<bool> MoveMouseAndCheckCursor(int x, int y, CancellationToken cancellationToken, int mpy) {
             if (cancellationToken.IsCancellationRequested)
                 throw new TaskCanceledException();
 
-            Win32.MoveMouse(x, y);
+            Win32.MoveRelMouse(x, y);
 
             // Pause (give the OS a chance to change the cursor)
-            await Task.Delay(mpy*Properties.Settings.Default.ScanningDelay, cancellationToken);
+            await Task.Delay(mpy * Properties.Settings.Default.ScanningDelay / 10, cancellationToken);
 
             Win32.CursorInfo actualCursor = Win32.GetCurrentCursor();
 
@@ -256,8 +291,8 @@ namespace UltimateFishBot.Classes.BodyParts
                 return false;
 
             // Compare the actual icon with our fishIcon if user want it
-            if (Properties.Settings.Default.CheckCursor) { 
-                if (ImageCompare(Win32.GetCursorIcon(actualCursor), Properties.Resources.fishIcon35x35)) { 
+            if (Properties.Settings.Default.CheckCursor) {
+                if (ImageCompare(Win32.GetCursorIcon(actualCursor), Properties.Resources.fishIcon35x35)) {
                     // We found a fish!
                     return true;
                 }
@@ -272,15 +307,15 @@ namespace UltimateFishBot.Classes.BodyParts
         }
 
 
-        private static bool ImageCompare(Bitmap bmp1, Bitmap bmp2)  {
+        private static bool ImageCompare(Bitmap bmp1, Bitmap bmp2) {
 
-            if (bmp1 == null || bmp2 == null) { 
+            if (bmp1 == null || bmp2 == null) {
                 return false;
             }
-            if (object.Equals(bmp1, bmp2)) { 
+            if (object.Equals(bmp1, bmp2)) {
                 return true;
             }
-            if (!bmp1.Size.Equals(bmp2.Size) || !bmp1.PixelFormat.Equals(bmp2.PixelFormat)) { 
+            if (!bmp1.Size.Equals(bmp2.Size) || !bmp1.PixelFormat.Equals(bmp2.PixelFormat)) {
                 return false;
             }
 
@@ -312,7 +347,15 @@ namespace UltimateFishBot.Classes.BodyParts
         public void CaptureCursor() {
             Win32.CursorInfo actualCursor = Win32.GetCurrentCursor();
             Bitmap cursorIcon = Win32.GetCursorIcon(actualCursor);
-            cursorIcon.Save("capturedcursor.bmp");
+            if (capturedCursorIcon != null) {
+                capturedCursorIcon.Dispose();
+                capturedCursorIcon = null;
+            }
+            if (System.IO.File.Exists("capturedcursor.png")) {
+                System.IO.File.Delete("capturedcursor.png");
+            }
+            cursorIcon.Save("capturedcursor.png", ImageFormat.Png);
+            capturedCursorIcon = cursorIcon;
         }
 
     }

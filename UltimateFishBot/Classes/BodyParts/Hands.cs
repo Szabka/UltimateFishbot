@@ -81,7 +81,7 @@ namespace UltimateFishBot.Classes.BodyParts
                     {
                         actionKey = Properties.Settings.Default.HearthKey;
                         mouth.Say(Translate.GetTranslate("manager", "LABEL_HEARTHSTONE"));
-                        sleepTime = 0;
+                        sleepTime = 3;
                         break;
                     }
                 case Manager.NeededAction.Lure:

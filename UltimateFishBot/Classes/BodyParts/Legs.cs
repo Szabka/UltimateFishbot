@@ -9,27 +9,28 @@ namespace UltimateFishBot.Classes.BodyParts
     {
         public enum Path
         {
-            FRONT_BACK = 0,
-            LEFT_RIGHT = 1,
-            JUMP       = 2
+            JUMP = 0,
+            FRONT_BACK = 1,
+            LEFT_RIGHT = 2
         }
 
         public async Task DoMovement(T2S t2s, CancellationToken cancellationToken)
         {
             switch ((Path)Properties.Settings.Default.AntiAfkMoves)
             {
+                case Path.JUMP:
+                    await MovePath(new Keys[] { Keys.Space }, cancellationToken);
+                    await Task.Delay(500, cancellationToken);
+                    break;
                 case Path.FRONT_BACK:
                     await MovePath(new Keys[] { Keys.Up, Keys.Down }, cancellationToken);
                     break;
                 case Path.LEFT_RIGHT:
                     await MovePath(new Keys[] { Keys.Left, Keys.Right }, cancellationToken);
                     break;
-                case Path.JUMP:
+                default:
                     await MovePath(new Keys[] { Keys.Space }, cancellationToken);
                     await Task.Delay(500, cancellationToken);
-                    break;
-                default:
-                    await MovePath(new Keys[] { Keys.Left, Keys.Right }, cancellationToken);
                     break;
             }
             if (t2s != null)

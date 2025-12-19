@@ -331,13 +331,13 @@ namespace UltimateFishBot.Forms
             try
             {
                 MMDeviceEnumerator sndDevEnum = new MMDeviceEnumerator();
-                MMDeviceCollection audioCollection = sndDevEnum.EnumerateAudioEndPoints(EDataFlow.eRender, EDeviceState.DEVICE_STATEMASK_ALL);
+                MMDeviceCollection audioCollection = sndDevEnum.EnumerateAudioEndPoints(EDataFlow.eRender, EDeviceState.DEVICE_STATE_ACTIVE);
 
                 // Try to add each audio endpoint to our collection
                 for (int i = 0; i < audioCollection.Count; ++i)
                 {
                     MMDevice device = audioCollection[i];
-                    audioDevices.Add(new Tuple<string, string>(device.FriendlyName, device.ID));
+                    audioDevices.Add(new Tuple<string, string>(device.FriendlyName+" "+device.ID, device.ID));
                 }
             }
             catch (Exception)

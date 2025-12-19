@@ -33,7 +33,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="SwapGear" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="UseAltKey" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
@@ -72,7 +72,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="FishWait" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">22000</Value>
+      <Value Profile="(Default)">20000</Value>
     </Setting>
     <Setting Name="AudioDevice" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -149,14 +149,14 @@
     <Setting Name="Txt2speech" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="AverageSound" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="CursorCaptureHotKey" Type="System.Windows.Forms.Keys" Scope="User">
       <Value Profile="(Default)">Ctrl+Shift+C</Value>
     </Setting>
     <Setting Name="RightClickCast" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="AverageSound" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

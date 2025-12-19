@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>UltimateFishBot</RootNamespace>
     <AssemblyName>UltimateFishBot</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -41,6 +41,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>3</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -51,6 +52,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>icon.ico</ApplicationIcon>
@@ -93,6 +95,8 @@
     <Compile Include="Classes\BodyParts\Legs.cs" />
     <Compile Include="Classes\BodyParts\Mouth.cs" />
     <Compile Include="Classes\FishingStats.cs" />
+    <Compile Include="Classes\Helpers\PointHelper.cs" />
+    <Compile Include="Classes\Helpers\RedifyFilter.cs" />
     <Compile Include="Classes\Helpers\Win32.cs" />
     <Compile Include="Classes\Manager.cs" />
     <Compile Include="Classes\Translate.cs" />
