@@ -3,16 +3,13 @@ using System.Drawing;
 using System.Windows.Forms;
 using UltimateFishBot.Classes;
 
-namespace UltimateFishBot.Forms
-{
+namespace UltimateFishBot.Forms {
 
 
-    public partial class frmOverlay : Form
-    {
+    public partial class frmOverlay : Form {
         #region:::::::::::::::::::::::::::::::::::::::::::Create Singleton:::::::::::::::::::::::::::::::::::::::::::
         private static frmOverlay inst;
-        public static frmOverlay GetForm(frmSettings settings)
-        {
+        public static frmOverlay GetForm(frmSettings settings) {
             if (inst == null || inst.IsDisposed)
                 inst = new frmOverlay(settings);
             return inst;
@@ -21,8 +18,7 @@ namespace UltimateFishBot.Forms
 
         #region:::::::::::::::::::::::::::::::::::::::::::Form level declarations:::::::::::::::::::::::::::::::::::::::::::
 
-        public enum CursPos : int
-        {
+        public enum CursPos : int {
 
             WithinSelectionArea = 0,
             OutsideSelectionArea,
@@ -37,8 +33,7 @@ namespace UltimateFishBot.Forms
 
         }
 
-        public enum ClickAction : int
-        {
+        public enum ClickAction : int {
 
             NoClick = 0,
             Dragging,
@@ -74,11 +69,9 @@ namespace UltimateFishBot.Forms
         Pen MyPen = new Pen(Color.White, 1);
         Pen EraserPen = new Pen(Color.FromArgb(0, 0, 0), 20);
 
-        protected override void OnMouseClick(MouseEventArgs e)
-        {
+        protected override void OnMouseClick(MouseEventArgs e) {
 
-            if (e.Button == MouseButtons.Right)
-            {
+            if (e.Button == MouseButtons.Right) {
 
                 e = null;
 
@@ -91,8 +84,7 @@ namespace UltimateFishBot.Forms
         #endregion
 
         #region:::::::::::::::::::::::::::::::::::::::::::Mouse Event Handlers & Drawing Initialization:::::::::::::::::::::::::::::::::::::::::::
-        public frmOverlay(frmSettings settings)
-        {
+        public frmOverlay(frmSettings settings) {
 
             InitializeComponent();
             this.settings = settings;
@@ -110,8 +102,7 @@ namespace UltimateFishBot.Forms
 
         #endregion
 
-        private void initPoints()
-        {
+        private void initPoints() {
             ClickPoint.X = 0;
             ClickPoint.Y = 0;
 
@@ -133,14 +124,12 @@ namespace UltimateFishBot.Forms
 
         }
 
-        private int GetPrimaryMonIdx()
-        {
+        private int GetPrimaryMonIdx() {
             Screen[] sc;
             sc = Screen.AllScreens;
             int idx = 0;
 
-            foreach (Screen s in sc)
-            {
+            foreach (Screen s in sc) {
                 if (s.Bounds.Left == System.Windows.Forms.Screen.PrimaryScreen.Bounds.Left)
                     break;
                 else
@@ -151,20 +140,16 @@ namespace UltimateFishBot.Forms
         }
 
 
-        private void InvertColors()
-        {
+        private void InvertColors() {
             g.DrawRectangle(EraserPen, GetX(CurrentTopLeft.X), CurrentTopLeft.Y, GetX(CurrentBottomRight.X) - GetX(CurrentTopLeft.X), CurrentBottomRight.Y - CurrentTopLeft.Y);
 
-            if (this.BackColor == Color.Black)
-            {
+            if (this.BackColor == Color.Black) {
                 this.BackColor = Color.Yellow;
                 MyPen.Dispose();
                 EraserPen.Dispose();
                 MyPen = new Pen(Color.Black, 1);
                 EraserPen = new Pen(Color.Yellow, 20);
-            }
-            else
-            {
+            } else {
                 this.BackColor = Color.Black;
                 MyPen.Dispose();
                 EraserPen.Dispose();
@@ -179,16 +164,12 @@ namespace UltimateFishBot.Forms
         }
 
 
-        private void SaveSelection()
-        {
-            if ((CurrentBottomRight.X - CurrentTopLeft.X) < 60 || (CurrentBottomRight.Y - CurrentTopLeft.Y) < 60)
-            {
+        private void SaveSelection() {
+            if ((CurrentBottomRight.X - CurrentTopLeft.X) < 60 || (CurrentBottomRight.Y - CurrentTopLeft.Y) < 60) {
 
                 MessageBox.Show(Translate.GetTranslate("frmSettings", "AREA_SMALL"), "Error");
 
-            }
-            else
-            {
+            } else {
 
                 Properties.Settings.Default.minScanXY = CurrentTopLeft;
                 Properties.Settings.Default.maxScanXY = CurrentBottomRight;
@@ -200,8 +181,7 @@ namespace UltimateFishBot.Forms
             this.Close();
         }
 
-        private void init_FullScreen()
-        {
+        private void init_FullScreen() {
             Screen[] sc;
             sc = Screen.AllScreens;
 
@@ -214,13 +194,10 @@ namespace UltimateFishBot.Forms
             CurrentBottomRight.Y = sc[showMon].Bounds.Height;
         }
 
-        public void key_press(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Escape)
-            {
+        public void key_press(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Escape) {
                 this.Close();
-            }
-            else if (e.KeyCode == Keys.Z)
+            } else if (e.KeyCode == Keys.Z)
                 InvertColors();
             else if (e.KeyCode == Keys.Enter)
                 SaveSelection();
@@ -228,18 +205,15 @@ namespace UltimateFishBot.Forms
 
         #region:::::::::::::::::::::::::::::::::::::::::::Mouse Buttons:::::::::::::::::::::::::::::::::::::::::::
 
-        private void mouse_Click(object sender, MouseEventArgs e)
-        {
+        private void mouse_Click(object sender, MouseEventArgs e) {
 
-            if (e.Button == MouseButtons.Left)
-            {
+            if (e.Button == MouseButtons.Left) {
 
                 SetClickAction();
                 LeftButtonDown = true;
                 ClickPoint = new Point(System.Windows.Forms.Control.MousePosition.X, System.Windows.Forms.Control.MousePosition.Y);
 
-                if (RectangleDrawn)
-                {
+                if (RectangleDrawn) {
 
                     RectangleHeight = CurrentBottomRight.Y - CurrentTopLeft.Y;
                     RectangleWidth = CurrentBottomRight.X - CurrentTopLeft.X;
@@ -251,13 +225,11 @@ namespace UltimateFishBot.Forms
             }
         }
 
-        private void mouse_dClick(object sender, EventArgs e)
-        {
+        private void mouse_dClick(object sender, EventArgs e) {
             SaveSelection();
         }
 
-        private void mouse_Up(object sender, MouseEventArgs e)
-        {
+        private void mouse_Up(object sender, MouseEventArgs e) {
 
             RectangleDrawn = true;
             LeftButtonDown = false;
@@ -267,94 +239,79 @@ namespace UltimateFishBot.Forms
         #endregion
 
         #region:::::::::::::::::::::::::::::::::::::::::::Resizing and Moving:::::::::::::::::::::::::::::::::::::::::::
-        private void mouse_Move(object sender, MouseEventArgs e)
-        {
+        private void mouse_Move(object sender, MouseEventArgs e) {
 
-            if (LeftButtonDown && !RectangleDrawn)
-            {
+            if (LeftButtonDown && !RectangleDrawn) {
 
                 DrawSelection();
 
             }
 
-            if (RectangleDrawn)
-            {
+            if (RectangleDrawn) {
 
                 CursorPosition();
 
-                if (CurrentAction == ClickAction.Dragging)
-                {
+                if (CurrentAction == ClickAction.Dragging) {
                     DragSelection();
                 }
 
-                if (CurrentAction != ClickAction.Dragging && CurrentAction != ClickAction.Outside)
-                {
+                if (CurrentAction != ClickAction.Dragging && CurrentAction != ClickAction.Outside) {
                     ResizeSelection();
                 }
             }
         }
 
-        private CursPos CursorPosition()
-        {
-            if (((Cursor.Position.X > CurrentTopLeft.X - 10 && Cursor.Position.X < CurrentTopLeft.X + 10)) && ((Cursor.Position.Y > CurrentTopLeft.Y + 10) && (Cursor.Position.Y < CurrentBottomRight.Y - 10)))
-            {
+        private CursPos CursorPosition() {
+            if (((Cursor.Position.X > CurrentTopLeft.X - 10 && Cursor.Position.X < CurrentTopLeft.X + 10)) && ((Cursor.Position.Y > CurrentTopLeft.Y + 10) && (Cursor.Position.Y < CurrentBottomRight.Y - 10))) {
 
                 this.Cursor = Cursors.SizeWE;
                 return CursPos.LeftLine;
 
             }
-            if (((Cursor.Position.X >= CurrentTopLeft.X - 10 && Cursor.Position.X <= CurrentTopLeft.X + 10)) && ((Cursor.Position.Y >= CurrentTopLeft.Y - 10) && (Cursor.Position.Y <= CurrentTopLeft.Y + 10)))
-            {
+            if (((Cursor.Position.X >= CurrentTopLeft.X - 10 && Cursor.Position.X <= CurrentTopLeft.X + 10)) && ((Cursor.Position.Y >= CurrentTopLeft.Y - 10) && (Cursor.Position.Y <= CurrentTopLeft.Y + 10))) {
 
                 this.Cursor = Cursors.SizeNWSE;
                 return CursPos.TopLeft;
 
             }
-            if (((Cursor.Position.X >= CurrentTopLeft.X - 10 && Cursor.Position.X <= CurrentTopLeft.X + 10)) && ((Cursor.Position.Y >= CurrentBottomRight.Y - 10) && (Cursor.Position.Y <= CurrentBottomRight.Y + 10)))
-            {
+            if (((Cursor.Position.X >= CurrentTopLeft.X - 10 && Cursor.Position.X <= CurrentTopLeft.X + 10)) && ((Cursor.Position.Y >= CurrentBottomRight.Y - 10) && (Cursor.Position.Y <= CurrentBottomRight.Y + 10))) {
 
                 this.Cursor = Cursors.SizeNESW;
                 return CursPos.BottomLeft;
 
             }
-            if (((Cursor.Position.X > CurrentBottomRight.X - 10 && Cursor.Position.X < CurrentBottomRight.X + 10)) && ((Cursor.Position.Y > CurrentTopLeft.Y + 10) && (Cursor.Position.Y < CurrentBottomRight.Y - 10)))
-            {
+            if (((Cursor.Position.X > CurrentBottomRight.X - 10 && Cursor.Position.X < CurrentBottomRight.X + 10)) && ((Cursor.Position.Y > CurrentTopLeft.Y + 10) && (Cursor.Position.Y < CurrentBottomRight.Y - 10))) {
 
                 this.Cursor = Cursors.SizeWE;
                 return CursPos.RightLine;
 
             }
-            if (((Cursor.Position.X >= CurrentBottomRight.X - 10 && Cursor.Position.X <= CurrentBottomRight.X + 10)) && ((Cursor.Position.Y >= CurrentTopLeft.Y - 10) && (Cursor.Position.Y <= CurrentTopLeft.Y + 10)))
-            {
+            if (((Cursor.Position.X >= CurrentBottomRight.X - 10 && Cursor.Position.X <= CurrentBottomRight.X + 10)) && ((Cursor.Position.Y >= CurrentTopLeft.Y - 10) && (Cursor.Position.Y <= CurrentTopLeft.Y + 10))) {
 
                 this.Cursor = Cursors.SizeNESW;
                 return CursPos.TopRight;
 
             }
-            if (((Cursor.Position.X >= CurrentBottomRight.X - 10 && Cursor.Position.X <= CurrentBottomRight.X + 10)) && ((Cursor.Position.Y >= CurrentBottomRight.Y - 10) && (Cursor.Position.Y <= CurrentBottomRight.Y + 10)))
-            {
+            if (((Cursor.Position.X >= CurrentBottomRight.X - 10 && Cursor.Position.X <= CurrentBottomRight.X + 10)) && ((Cursor.Position.Y >= CurrentBottomRight.Y - 10) && (Cursor.Position.Y <= CurrentBottomRight.Y + 10))) {
 
                 this.Cursor = Cursors.SizeNWSE;
                 return CursPos.BottomRight;
 
             }
-            if (((Cursor.Position.Y > CurrentTopLeft.Y - 10) && (Cursor.Position.Y < CurrentTopLeft.Y + 10)) && ((Cursor.Position.X > CurrentTopLeft.X + 10 && Cursor.Position.X < CurrentBottomRight.X - 10)))
-            {
+            if (((Cursor.Position.Y > CurrentTopLeft.Y - 10) && (Cursor.Position.Y < CurrentTopLeft.Y + 10)) && ((Cursor.Position.X > CurrentTopLeft.X + 10 && Cursor.Position.X < CurrentBottomRight.X - 10))) {
 
                 this.Cursor = Cursors.SizeNS;
                 return CursPos.TopLine;
 
             }
-            if (((Cursor.Position.Y > CurrentBottomRight.Y - 10) && (Cursor.Position.Y < CurrentBottomRight.Y + 10)) && ((Cursor.Position.X > CurrentTopLeft.X + 10 && Cursor.Position.X < CurrentBottomRight.X - 10)))
-            {
+            if (((Cursor.Position.Y > CurrentBottomRight.Y - 10) && (Cursor.Position.Y < CurrentBottomRight.Y + 10)) && ((Cursor.Position.X > CurrentTopLeft.X + 10 && Cursor.Position.X < CurrentBottomRight.X - 10))) {
 
                 this.Cursor = Cursors.SizeNS;
                 return CursPos.BottomLine;
 
             }
             if (
-                (Cursor.Position.X >= CurrentTopLeft.X + 10 && Cursor.Position.X <= CurrentBottomRight.X - 10) && (Cursor.Position.Y >= CurrentTopLeft.Y + 10 && Cursor.Position.Y <= CurrentBottomRight.Y - 10))
-            {
+                (Cursor.Position.X >= CurrentTopLeft.X + 10 && Cursor.Position.X <= CurrentBottomRight.X - 10) && (Cursor.Position.Y >= CurrentTopLeft.Y + 10 && Cursor.Position.Y <= CurrentBottomRight.Y - 10)) {
                 this.Cursor = Cursors.Hand;
                 return CursPos.WithinSelectionArea;
             }
@@ -363,11 +320,9 @@ namespace UltimateFishBot.Forms
             return CursPos.OutsideSelectionArea;
         }
 
-        private void SetClickAction()
-        {
+        private void SetClickAction() {
 
-            switch (CursorPosition())
-            {
+            switch (CursorPosition()) {
                 case CursPos.BottomLine:
                     CurrentAction = ClickAction.BottomSizing;
                     break;
@@ -402,14 +357,11 @@ namespace UltimateFishBot.Forms
 
         }
 
-        private void ResizeSelection()
-        {
+        private void ResizeSelection() {
 
-            if (CurrentAction == ClickAction.LeftSizing)
-            {
+            if (CurrentAction == ClickAction.LeftSizing) {
 
-                if (Cursor.Position.X < CurrentBottomRight.X - 10)
-                {
+                if (Cursor.Position.X < CurrentBottomRight.X - 10) {
 
                     //Erase the previous rectangle
                     g.DrawRectangle(EraserPen, GetX(CurrentTopLeft.X), CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
@@ -420,11 +372,9 @@ namespace UltimateFishBot.Forms
                 }
 
             }
-            if (CurrentAction == ClickAction.TopLeftSizing)
-            {
+            if (CurrentAction == ClickAction.TopLeftSizing) {
 
-                if (Cursor.Position.X < CurrentBottomRight.X - 10 && Cursor.Position.Y < CurrentBottomRight.Y - 10)
-                {
+                if (Cursor.Position.X < CurrentBottomRight.X - 10 && Cursor.Position.Y < CurrentBottomRight.Y - 10) {
 
                     //Erase the previous rectangle
                     g.DrawRectangle(EraserPen, GetX(CurrentTopLeft.X), CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
@@ -436,11 +386,9 @@ namespace UltimateFishBot.Forms
 
                 }
             }
-            if (CurrentAction == ClickAction.BottomLeftSizing)
-            {
+            if (CurrentAction == ClickAction.BottomLeftSizing) {
 
-                if (Cursor.Position.X < CurrentBottomRight.X - 10 && Cursor.Position.Y > CurrentTopLeft.Y + 10)
-                {
+                if (Cursor.Position.X < CurrentBottomRight.X - 10 && Cursor.Position.Y > CurrentTopLeft.Y + 10) {
 
                     //Erase the previous rectangle
                     g.DrawRectangle(EraserPen, GetX(CurrentTopLeft.X), CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
@@ -453,11 +401,9 @@ namespace UltimateFishBot.Forms
                 }
 
             }
-            if (CurrentAction == ClickAction.RightSizing)
-            {
+            if (CurrentAction == ClickAction.RightSizing) {
 
-                if (Cursor.Position.X > CurrentTopLeft.X + 10)
-                {
+                if (Cursor.Position.X > CurrentTopLeft.X + 10) {
 
                     //Erase the previous rectangle
                     g.DrawRectangle(EraserPen, GetX(CurrentTopLeft.X), CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
@@ -467,11 +413,9 @@ namespace UltimateFishBot.Forms
 
                 }
             }
-            if (CurrentAction == ClickAction.TopRightSizing)
-            {
+            if (CurrentAction == ClickAction.TopRightSizing) {
 
-                if (Cursor.Position.X > CurrentTopLeft.X + 10 && Cursor.Position.Y < CurrentBottomRight.Y - 10)
-                {
+                if (Cursor.Position.X > CurrentTopLeft.X + 10 && Cursor.Position.Y < CurrentBottomRight.Y - 10) {
 
                     //Erase the previous rectangle
                     g.DrawRectangle(EraserPen, GetX(CurrentTopLeft.X), CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
@@ -483,11 +427,9 @@ namespace UltimateFishBot.Forms
 
                 }
             }
-            if (CurrentAction == ClickAction.BottomRightSizing)
-            {
+            if (CurrentAction == ClickAction.BottomRightSizing) {
 
-                if (Cursor.Position.X > CurrentTopLeft.X + 10 && Cursor.Position.Y > CurrentTopLeft.Y + 10)
-                {
+                if (Cursor.Position.X > CurrentTopLeft.X + 10 && Cursor.Position.Y > CurrentTopLeft.Y + 10) {
 
                     //Erase the previous rectangle
                     g.DrawRectangle(EraserPen, GetX(CurrentTopLeft.X), CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
@@ -499,11 +441,9 @@ namespace UltimateFishBot.Forms
 
                 }
             }
-            if (CurrentAction == ClickAction.TopSizing)
-            {
+            if (CurrentAction == ClickAction.TopSizing) {
 
-                if (Cursor.Position.Y < CurrentBottomRight.Y - 10)
-                {
+                if (Cursor.Position.Y < CurrentBottomRight.Y - 10) {
 
                     //Erase the previous rectangle
                     g.DrawRectangle(EraserPen, GetX(CurrentTopLeft.X), CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
@@ -513,11 +453,9 @@ namespace UltimateFishBot.Forms
 
                 }
             }
-            if (CurrentAction == ClickAction.BottomSizing)
-            {
+            if (CurrentAction == ClickAction.BottomSizing) {
 
-                if (Cursor.Position.Y > CurrentTopLeft.Y + 10)
-                {
+                if (Cursor.Position.Y > CurrentTopLeft.Y + 10) {
 
                     //Erase the previous rectangle
                     g.DrawRectangle(EraserPen, GetX(CurrentTopLeft.X), CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
@@ -531,57 +469,48 @@ namespace UltimateFishBot.Forms
 
         }
 
-        private void DragSelection()
-        {
+        private void DragSelection() {
             //Ensure that the rectangle stays within the bounds of the screen
 
             //Erase the previous rectangle
             g.DrawRectangle(EraserPen, GetX(CurrentTopLeft.X), CurrentTopLeft.Y, RectangleWidth, RectangleHeight);
 
-            if (GetX(Cursor.Position.X) - DragClickRelative.X > 0 && GetX(Cursor.Position.X) - DragClickRelative.X + RectangleWidth < this.Width/*System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width*/)
-            {
+            if (GetX(Cursor.Position.X) - DragClickRelative.X > 0 && GetX(Cursor.Position.X) - DragClickRelative.X + RectangleWidth < this.Width/*System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width*/) {
 
                 CurrentTopLeft.X = Cursor.Position.X - DragClickRelative.X;
                 CurrentBottomRight.X = CurrentTopLeft.X + RectangleWidth;
 
-            }
-            else
+            } else
                 //Selection area has reached the right side of the screen
-                if (GetX(Cursor.Position.X) - DragClickRelative.X > 0)
-            {
+                if (GetX(Cursor.Position.X) - DragClickRelative.X > 0) {
 
                 CurrentTopLeft.X = this.Width/*System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width*/ - RectangleWidth;
                 CurrentBottomRight.X = CurrentTopLeft.X + RectangleWidth;
 
             }
             //Selection area has reached the left side of the screen
-            else
-            {
+            else {
 
                 CurrentTopLeft.X = this.Left;
                 CurrentBottomRight.X = CurrentTopLeft.X + RectangleWidth;
 
             }
 
-            if (Cursor.Position.Y - DragClickRelative.Y > 0 && Cursor.Position.Y - DragClickRelative.Y + RectangleHeight < this.Width/*System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height*/)
-            {
+            if (Cursor.Position.Y - DragClickRelative.Y > 0 && Cursor.Position.Y - DragClickRelative.Y + RectangleHeight < this.Width/*System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height*/) {
 
                 CurrentTopLeft.Y = Cursor.Position.Y - DragClickRelative.Y;
                 CurrentBottomRight.Y = CurrentTopLeft.Y + RectangleHeight;
 
-            }
-            else
+            } else
                 //Selection area has reached the bottom of the screen
-                if (Cursor.Position.Y - DragClickRelative.Y > 0)
-            {
+                if (Cursor.Position.Y - DragClickRelative.Y > 0) {
 
                 CurrentTopLeft.Y = this.Height/*System.Windows.Forms.Screen.PrimaryScreen.Bounds.Height*/ - RectangleHeight;
                 CurrentBottomRight.Y = CurrentTopLeft.Y + RectangleHeight;
 
             }
             //Selection area has reached the top of the screen
-            else
-            {
+            else {
 
                 CurrentTopLeft.Y = 0;
                 CurrentBottomRight.Y = CurrentTopLeft.Y + RectangleHeight;
@@ -594,8 +523,7 @@ namespace UltimateFishBot.Forms
         }
         #endregion
 
-        private int GetX(int X)
-        {
+        private int GetX(int X) {
             if (showMon == PrimMon)
                 return X;
             else if (this.Left < 0)
@@ -604,8 +532,7 @@ namespace UltimateFishBot.Forms
                 return X - System.Windows.Forms.Screen.PrimaryScreen.Bounds.Width;
         }
 
-        private void DrawSelection()
-        {
+        private void DrawSelection() {
 
             this.Cursor = Cursors.Arrow;
 
@@ -613,15 +540,12 @@ namespace UltimateFishBot.Forms
             g.DrawRectangle(EraserPen, GetX(CurrentTopLeft.X), CurrentTopLeft.Y, GetX(CurrentBottomRight.X) - GetX(CurrentTopLeft.X), CurrentBottomRight.Y - CurrentTopLeft.Y);
 
             //Calculate X Coordinates
-            if (Cursor.Position.X < ClickPoint.X)
-            {
+            if (Cursor.Position.X < ClickPoint.X) {
 
                 CurrentTopLeft.X = Cursor.Position.X;
                 CurrentBottomRight.X = ClickPoint.X;
 
-            }
-            else
-            {
+            } else {
 
                 CurrentTopLeft.X = ClickPoint.X;
                 CurrentBottomRight.X = Cursor.Position.X;
@@ -629,15 +553,12 @@ namespace UltimateFishBot.Forms
             }
 
             //Calculate Y Coordinates
-            if (Cursor.Position.Y < ClickPoint.Y)
-            {
+            if (Cursor.Position.Y < ClickPoint.Y) {
 
                 CurrentTopLeft.Y = Cursor.Position.Y;
                 CurrentBottomRight.Y = ClickPoint.Y;
 
-            }
-            else
-            {
+            } else {
 
                 CurrentTopLeft.Y = ClickPoint.Y;
                 CurrentBottomRight.Y = Cursor.Position.Y;

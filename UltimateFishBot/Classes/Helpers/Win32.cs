@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -207,6 +208,7 @@ namespace UltimateFishBot.Classes.Helpers {
                     return process.MainWindowHandle;
                 }
             }
+            Log.Information("WoW window not found!");
             return new IntPtr();
         }
 

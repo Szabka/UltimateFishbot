@@ -163,6 +163,8 @@
       <!-- Other-->
       <RESET_TITLE>Reset Settings</RESET_TITLE>
       <RESET_MESSAGE>Click OK to reset all settings to default values and restart the application.</RESET_MESSAGE>
+      <CHK_TEXT_TO_SPEECH>Use Text2Speech alerts.</CHK_TEXT_TO_SPEECH>
+      <LABEL_FEATUREFLAGS>Enable Experimental Features (may be unstable)</LABEL_FEATUREFLAGS>
       
         <!-- Buttons -->
         <BUTTON_SAVE>Save</BUTTON_SAVE>
@@ -170,9 +172,9 @@
     </frmSettings>
     <frmStats>
         <TITLE>Statistics</TITLE>
-        <LABEL_SUCCESS>Successful Fishing :</LABEL_SUCCESS>
-        <LABEL_NOT_FOUND>Fish not found :</LABEL_NOT_FOUND>
-        <LABEL_NOT_EARED>Fish not eared :</LABEL_NOT_EARED>
+        <LABEL_SUCCESS>Successful Fishing:</LABEL_SUCCESS>
+        <LABEL_NOT_FOUND>Fish not found:</LABEL_NOT_FOUND>
+        <LABEL_NOT_EARED>Fish not eared:</LABEL_NOT_EARED>
         <LABEL_TOTAL>Total :</LABEL_TOTAL>
         <BUTTON_RESET>Reset</BUTTON_RESET>
         <BUTTON_CLOSE>Close</BUTTON_CLOSE>
@@ -182,8 +184,6 @@
         <DESCRIPTION>If you are like me - you love playing World of Warcraft...but leveling your fishing and cooking skill isn't any fun.  You'd rather be *enjoying* the game than wasting hours doing what amounts to a chore. 
 		
 		Luckily, for both of us, I'm a computer programmer.  I've put together an application that will fish for you. 
-		
-		For more info and FAQ go to www.fishbot.net 
 		
 		Authors: 
 		Rob ultimatefishbot@gmail.com, 

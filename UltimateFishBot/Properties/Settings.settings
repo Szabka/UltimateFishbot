@@ -2,9 +2,6 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="UltimateFishBot.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="ScanningSteps" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">10</Value>
-    </Setting>
     <Setting Name="ScanningDelay" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">30</Value>
     </Setting>
@@ -122,9 +119,6 @@
     <Setting Name="BaitTime" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">5</Value>
     </Setting>
-    <Setting Name="AntiAfk" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="AntiAfkTime" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">15</Value>
     </Setting>
@@ -157,6 +151,15 @@
     </Setting>
     <Setting Name="AverageSound" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="ScanningSteps" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">15</Value>
+    </Setting>
+    <Setting Name="AntiAfk" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="FeatureFlag" Type="System.Int64" Scope="User">
+      <Value Profile="(Default)">0</Value>
     </Setting>
   </Settings>
 </SettingsFile>

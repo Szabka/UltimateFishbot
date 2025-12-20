@@ -47,7 +47,6 @@ namespace UltimateFishBot.Classes {
         private Ears m_ears;
         private Mouth m_mouth;
         private Legs m_legs;
-        private T2S t2s;
 
         private NeededAction m_neededActions;
         private FishingState m_fishingState;
@@ -59,10 +58,9 @@ namespace UltimateFishBot.Classes {
 
         public Manager(IManagerEventHandler managerEventHandler, IProgress<string> progressHandle) {
             m_managerEventHandler = managerEventHandler;
-            IntPtr WowWindowPointer = Helpers.Win32.FindWowWindow();
 
-            m_eyes = new Eyes(WowWindowPointer);
-            m_hands = new Hands(WowWindowPointer);
+            m_eyes = new Eyes();
+            m_hands = new Hands();
             m_ears = new Ears();
             m_mouth = new Mouth(progressHandle);
             m_legs = new Legs();
@@ -340,7 +338,7 @@ namespace UltimateFishBot.Classes {
                     await m_hands.DoAction(action, m_mouth, cancellationToken);
                     break;
                 case NeededAction.AntiAfkMove:
-                    await m_legs.DoMovement(t2s, cancellationToken);
+                    await m_legs.DoMovement(m_mouth, cancellationToken);
                     break;
             }
 

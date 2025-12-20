@@ -95,6 +95,7 @@
     <Compile Include="Classes\BodyParts\Legs.cs" />
     <Compile Include="Classes\BodyParts\Mouth.cs" />
     <Compile Include="Classes\FishingStats.cs" />
+    <Compile Include="Classes\Helpers\FeatureChecker.cs" />
     <Compile Include="Classes\Helpers\PointHelper.cs" />
     <Compile Include="Classes\Helpers\RedifyFilter.cs" />
     <Compile Include="Classes\Helpers\Win32.cs" />

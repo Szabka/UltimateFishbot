@@ -6,21 +6,17 @@ using System.Threading;
 using System.Windows.Forms;
 using UltimateFishBot.Classes;
 
-namespace UltimateFishBot.Forms
-{
-    public partial class frmSettings : Form
-    {
+namespace UltimateFishBot.Forms {
+    public partial class frmSettings : Form {
         private static frmSettings inst;
-        public static frmSettings GetForm(frmMain main)
-        {
+        public static frmSettings GetForm(frmMain main) {
             if (inst == null || inst.IsDisposed)
                 inst = new frmSettings(main);
             return inst;
         }
 
 
-        private enum TabulationIndex
-        {
+        private enum TabulationIndex {
             GeneralFishing = 0,
             FindCursor = 1,
             HearingFishing = 2,
@@ -33,8 +29,7 @@ namespace UltimateFishBot.Forms
         private MMDevice m_SndDevice;
         private Keys m_hotkey;
 
-        public frmSettings(frmMain mainForm)
-        {
+        public frmSettings(frmMain mainForm) {
             InitializeComponent();
             m_mainForm = mainForm;
             m_SndDevice = null;
@@ -42,8 +37,7 @@ namespace UltimateFishBot.Forms
             tmeAudio.Tick += new EventHandler(tmeAudio_Tick);
         }
 
-        private void frmSettings_Load(object sender, EventArgs e)
-        {
+        private void frmSettings_Load(object sender, EventArgs e) {
             /*
              * Set Text from translate file
              */
@@ -131,9 +125,6 @@ namespace UltimateFishBot.Forms
             cbCycleThroughBaitList.Text = Translate.GetTranslate("frmSettings", "CB_CYCLE_THROUGH_BAIT_LIST");
             cbShiftLoot.Text = Translate.GetTranslate("frmSettings", "CB_SHIFT_LOOT");
 
-            LabelProcessName.Text = Translate.GetTranslate("frmSettings", "LABEL_PROCESS_NAME");
-            LabelProcessNameDesc.Text = Translate.GetTranslate("frmSettings", "LABEL_PROCESS_NAME_DESC");
-
             /// Anti Afk
 
             LoadAntiAfkMovements();
@@ -148,6 +139,10 @@ namespace UltimateFishBot.Forms
 
             buttonSave.Text = Translate.GetTranslate("frmSettings", "BUTTON_SAVE");
             buttonCancel.Text = Translate.GetTranslate("frmSettings", "BUTTON_CANCEL");
+
+            // other page labels
+            chkTxt2speech.Text = Translate.GetTranslate("frmSettings", "CHK_TEXT_TO_SPEECH");
+            ffLabel.Text = Translate.GetTranslate("frmSettings", "LABEL_FEATUREFLAGS");
 
             /*
              * Set Settings from save
@@ -175,7 +170,6 @@ namespace UltimateFishBot.Forms
             cbSoundAvg.Checked = Properties.Settings.Default.AverageSound;
 
             /// Premium Settings
-            txtProcName.Text = Properties.Settings.Default.ProcName;
             cbAutoLure.Checked = Properties.Settings.Default.AutoLure;
             cbHearth.Checked = Properties.Settings.Default.SwapGear;
             cbAlt.Checked = Properties.Settings.Default.UseAltKey;
@@ -218,19 +212,18 @@ namespace UltimateFishBot.Forms
 
             /// Languages
             chkTxt2speech.Checked = Properties.Settings.Default.Txt2speech;
+            ffValue.Text = Properties.Settings.Default.FeatureFlag.ToString("X8");
             LoadLanguages();
 
 
         }
 
-        private void buttonCancel_Click(object sender, EventArgs e)
-        {
+        private void buttonCancel_Click(object sender, EventArgs e) {
             m_mainForm.ReloadHotkeys();
             this.Close();
         }
 
-        private void buttonSave_Click(object sender, EventArgs e)
-        {
+        private void buttonSave_Click(object sender, EventArgs e) {
             MessageBox.Show("Some changes may start working only after application restart.");
             /// General
             Properties.Settings.Default.CastingDelay = int.Parse(txtCastDelay.Text);
@@ -245,7 +238,7 @@ namespace UltimateFishBot.Forms
             Properties.Settings.Default.AlternativeRoute = cmbAlternativeRoute.Checked;
             Properties.Settings.Default.customScanArea = customAreaCheckbox.Checked;
             Properties.Settings.Default.CursorCaptureHotKey = (Keys)new KeysConverter().ConvertFromString(ccHotKey.Text);
-            
+
 
             /// Hearing the Fish
             Properties.Settings.Default.SplashLimit = int.Parse(txtSplash.Text);
@@ -254,7 +247,6 @@ namespace UltimateFishBot.Forms
 
             /// Premium Settings
 
-            Properties.Settings.Default.ProcName = txtProcName.Text;
             Properties.Settings.Default.AutoLure = cbAutoLure.Checked;
             Properties.Settings.Default.SwapGear = cbHearth.Checked;
             Properties.Settings.Default.UseAltKey = cbAlt.Checked;
@@ -299,8 +291,9 @@ namespace UltimateFishBot.Forms
 
             /// Language
             Properties.Settings.Default.Txt2speech = chkTxt2speech.Checked;
-            if ((string)cmbLanguage.SelectedItem != Properties.Settings.Default.Language)
-            {
+            Properties.Settings.Default.FeatureFlag = uint.Parse(ffValue.Text, System.Globalization.NumberStyles.HexNumber);
+
+            if ((string)cmbLanguage.SelectedItem != Properties.Settings.Default.Language) {
                 Properties.Settings.Default.Language = (string)cmbLanguage.SelectedItem;
                 Properties.Settings.Default.Save();
 
@@ -309,39 +302,31 @@ namespace UltimateFishBot.Forms
 
                 Thread.Sleep(1000);
                 Application.Restart();
-            }
-            else
-            {
+            } else {
                 Properties.Settings.Default.Save();
                 this.Close();
             }
 
         }
 
-        private void tabSettings_SelectedIndexChanged(Object sender, EventArgs e)
-        {
+        private void tabSettings_SelectedIndexChanged(Object sender, EventArgs e) {
             tmeAudio.Enabled = (tabSettings.SelectedIndex == 2);
         }
 
-        private void LoadAudioDevices()
-        {
+        private void LoadAudioDevices() {
             List<Tuple<string, string>> audioDevices = new List<Tuple<string, string>>();
             audioDevices.Add(new Tuple<string, string>("Default", ""));
 
-            try
-            {
+            try {
                 MMDeviceEnumerator sndDevEnum = new MMDeviceEnumerator();
                 MMDeviceCollection audioCollection = sndDevEnum.EnumerateAudioEndPoints(EDataFlow.eRender, EDeviceState.DEVICE_STATE_ACTIVE);
 
                 // Try to add each audio endpoint to our collection
-                for (int i = 0; i < audioCollection.Count; ++i)
-                {
+                for (int i = 0; i < audioCollection.Count; ++i) {
                     MMDevice device = audioCollection[i];
-                    audioDevices.Add(new Tuple<string, string>(device.FriendlyName+" "+device.ID, device.ID));
+                    audioDevices.Add(new Tuple<string, string>(device.FriendlyName + " " + device.ID, device.ID));
                 }
-            }
-            catch (Exception)
-            { }
+            } catch (Exception) { }
 
             // Setup the display
             cmbAudio.Items.Clear();
@@ -349,15 +334,14 @@ namespace UltimateFishBot.Forms
             cmbAudio.ValueMember = "Item2";
             cmbAudio.DataSource = audioDevices;
             cmbAudio.SelectedValue = Properties.Settings.Default.AudioDevice;
+            cmbAudio.DropDownWidth = 500;
         }
 
-        private void LoadLanguages()
-        {
+        private void LoadLanguages() {
             string[] languageFiles = Directory.GetFiles("./Resources/", "*.xml");
             cmbLanguage.Items.Clear();
 
-            foreach (string file in languageFiles)
-            {
+            foreach (string file in languageFiles) {
                 string tmpFile = file.Substring(12); // Remove the "./Resources/" part
                 tmpFile = tmpFile.Substring(0, tmpFile.Length - 4); // Remove the  ".xml" part
                 cmbLanguage.Items.Add(tmpFile);
@@ -366,39 +350,30 @@ namespace UltimateFishBot.Forms
             cmbLanguage.SelectedItem = Properties.Settings.Default.Language;
         }
 
-        private void LoadAntiAfkMovements()
-        {
+        private void LoadAntiAfkMovements() {
             cmbMovements.Items.Clear();
 
             foreach (string movements in Translate.GetTranslates("frmSettings", "CMB_ANTIAFK_MOVE"))
                 cmbMovements.Items.Add(movements);
         }
 
-        private void tmeAudio_Tick(Object sender, EventArgs e)
-        {
-            if (m_SndDevice != null)
-            {
-                try
-                {
+        private void tmeAudio_Tick(Object sender, EventArgs e) {
+            if (m_SndDevice != null) {
+                try {
                     int currentVolumnLevel = (int)(m_SndDevice.AudioMeterInformation.MasterPeakValue * 100);
                     pgbSoundLevel.Value = currentVolumnLevel;
                     lblAudioLevel.Text = currentVolumnLevel.ToString();
-                }
-                catch (Exception)
-                {
+                } catch (Exception) {
                     pgbSoundLevel.Value = 0;
                     lblAudioLevel.Text = "0";
                 }
-            }
-            else
-            {
+            } else {
                 pgbSoundLevel.Value = 0;
                 lblAudioLevel.Text = "0";
             }
         }
 
-        private void cmbAudio_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        private void cmbAudio_SelectedIndexChanged(object sender, EventArgs e) {
             MMDeviceEnumerator sndDevEnum = new MMDeviceEnumerator();
 
             if (!string.IsNullOrEmpty((string)cmbAudio.SelectedValue))
@@ -407,53 +382,42 @@ namespace UltimateFishBot.Forms
                 m_SndDevice = sndDevEnum.GetDefaultAudioEndpoint(EDataFlow.eRender, ERole.eMultimedia);
         }
 
-        private void LoadHotKeys()
-        {
+        private void LoadHotKeys() {
             m_hotkey = Properties.Settings.Default.StartStopHotKey;
             txtHotKey.Text = new KeysConverter().ConvertToString(m_hotkey);
             m_mainForm.UnregisterHotKeys();
         }
 
-        private void SaveHotKeys()
-        {
+        private void SaveHotKeys() {
             Properties.Settings.Default.StartStopHotKey = m_hotkey;
             m_mainForm.ReloadHotkeys();
         }
 
-        private void txtHotKey_KeyDown(object sender, KeyEventArgs e)
-        {
+        private void txtHotKey_KeyDown(object sender, KeyEventArgs e) {
             m_hotkey = e.KeyData;
             txtHotKey.Text = new KeysConverter().ConvertToString(m_hotkey);
         }
 
-        private void customAreaCheckbox_CheckedChanged(object sender, EventArgs e)
-        {
-            if (customAreaCheckbox.Checked)
-            {
+        private void customAreaCheckbox_CheckedChanged(object sender, EventArgs e) {
+            if (customAreaCheckbox.Checked) {
                 btnSetScanArea.Enabled = true;
                 txtMinXY.Enabled = true;
                 txtMaxXY.Enabled = true;
-            }
-            else
-            {
+            } else {
                 btnSetScanArea.Enabled = false;
                 txtMinXY.Enabled = false;
                 txtMaxXY.Enabled = false;
             }
         }
 
-        private void btnSetScanArea_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show(Translate.GetTranslate("frmSettings", "SCAN_MESSAGE"), Translate.GetTranslate("frmSettings", "SCAN_TITLE"), MessageBoxButtons.OKCancel) == DialogResult.OK)
-            {
+        private void btnSetScanArea_Click(object sender, EventArgs e) {
+            if (MessageBox.Show(Translate.GetTranslate("frmSettings", "SCAN_MESSAGE"), Translate.GetTranslate("frmSettings", "SCAN_TITLE"), MessageBoxButtons.OKCancel) == DialogResult.OK) {
                 frmOverlay.GetForm(this).Show();
             }
         }
 
-        private void btnReset_Click(object sender, EventArgs e)
-        {
-            if (MessageBox.Show(Translate.GetTranslate("frmSettings", "RESET_MESSAGE"), Translate.GetTranslate("frmSettings", "RESET_TITLE"), MessageBoxButtons.OKCancel) == DialogResult.OK)
-            {
+        private void btnReset_Click(object sender, EventArgs e) {
+            if (MessageBox.Show(Translate.GetTranslate("frmSettings", "RESET_MESSAGE"), Translate.GetTranslate("frmSettings", "RESET_TITLE"), MessageBoxButtons.OKCancel) == DialogResult.OK) {
                 Properties.Settings.Default.Reset();
                 Application.Restart();
             }

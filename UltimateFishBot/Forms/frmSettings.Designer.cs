@@ -76,9 +76,6 @@
             this.cbAlt = new System.Windows.Forms.CheckBox();
             this.cbHearth = new System.Windows.Forms.CheckBox();
             this.LabelCustomizeDesc = new System.Windows.Forms.Label();
-            this.txtProcName = new System.Windows.Forms.TextBox();
-            this.LabelProcessNameDesc = new System.Windows.Forms.Label();
-            this.LabelProcessName = new System.Windows.Forms.Label();
             this.cbAutoLure = new System.Windows.Forms.CheckBox();
             this.txtHearthKey = new System.Windows.Forms.TextBox();
             this.LabelHearthKey = new System.Windows.Forms.Label();
@@ -130,6 +127,8 @@
             this.labelLanguageDesc = new System.Windows.Forms.Label();
             this.labelLanguage = new System.Windows.Forms.Label();
             this.tabPage7 = new System.Windows.Forms.TabPage();
+            this.ffValue = new System.Windows.Forms.TextBox();
+            this.ffLabel = new System.Windows.Forms.Label();
             this.btnReset = new System.Windows.Forms.Button();
             this.chkTxt2speech = new System.Windows.Forms.CheckBox();
             this.buttonCancel = new System.Windows.Forms.Button();
@@ -320,9 +319,6 @@
             this.TabPage4.Controls.Add(this.cbAlt);
             this.TabPage4.Controls.Add(this.cbHearth);
             this.TabPage4.Controls.Add(this.LabelCustomizeDesc);
-            this.TabPage4.Controls.Add(this.txtProcName);
-            this.TabPage4.Controls.Add(this.LabelProcessNameDesc);
-            this.TabPage4.Controls.Add(this.LabelProcessName);
             this.TabPage4.Controls.Add(this.cbAutoLure);
             this.TabPage4.Controls.Add(this.txtHearthKey);
             this.TabPage4.Controls.Add(this.LabelHearthKey);
@@ -343,7 +339,7 @@
             // cbDblRclickCast
             // 
             this.cbDblRclickCast.AutoSize = true;
-            this.cbDblRclickCast.Location = new System.Drawing.Point(298, 93);
+            this.cbDblRclickCast.Location = new System.Drawing.Point(264, 229);
             this.cbDblRclickCast.Name = "cbDblRclickCast";
             this.cbDblRclickCast.Size = new System.Drawing.Size(150, 17);
             this.cbDblRclickCast.TabIndex = 54;
@@ -635,35 +631,6 @@
             this.LabelCustomizeDesc.Size = new System.Drawing.Size(423, 17);
             this.LabelCustomizeDesc.TabIndex = 26;
             this.LabelCustomizeDesc.Text = "Customize shortkeys to avoid rearranging your bars before/after fishing.";
-            // 
-            // txtProcName
-            // 
-            this.txtProcName.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtProcName.Location = new System.Drawing.Point(141, 256);
-            this.txtProcName.Name = "txtProcName";
-            this.txtProcName.Size = new System.Drawing.Size(255, 20);
-            this.txtProcName.TabIndex = 28;
-            this.txtProcName.Text = "Wow";
-            // 
-            // LabelProcessNameDesc
-            // 
-            this.LabelProcessNameDesc.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LabelProcessNameDesc.Location = new System.Drawing.Point(8, 278);
-            this.LabelProcessNameDesc.Name = "LabelProcessNameDesc";
-            this.LabelProcessNameDesc.Size = new System.Drawing.Size(423, 31);
-            this.LabelProcessNameDesc.TabIndex = 23;
-            this.LabelProcessNameDesc.Text = "The name of the process to activate (this rarely changes) but has been updated wi" +
-    "th new expansions in the past.";
-            // 
-            // LabelProcessName
-            // 
-            this.LabelProcessName.AutoSize = true;
-            this.LabelProcessName.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LabelProcessName.Location = new System.Drawing.Point(8, 259);
-            this.LabelProcessName.Name = "LabelProcessName";
-            this.LabelProcessName.Size = new System.Drawing.Size(127, 13);
-            this.LabelProcessName.TabIndex = 22;
-            this.LabelProcessName.Text = "WoW Process Name:";
             // 
             // cbAutoLure
             // 
@@ -1187,6 +1154,8 @@
             // 
             // tabPage7
             // 
+            this.tabPage7.Controls.Add(this.ffValue);
+            this.tabPage7.Controls.Add(this.ffLabel);
             this.tabPage7.Controls.Add(this.btnReset);
             this.tabPage7.Controls.Add(this.chkTxt2speech);
             this.tabPage7.Location = new System.Drawing.Point(4, 22);
@@ -1196,6 +1165,22 @@
             this.tabPage7.TabIndex = 6;
             this.tabPage7.Text = "Other";
             this.tabPage7.UseVisualStyleBackColor = true;
+            // 
+            // ffValue
+            // 
+            this.ffValue.Location = new System.Drawing.Point(8, 40);
+            this.ffValue.Name = "ffValue";
+            this.ffValue.Size = new System.Drawing.Size(65, 20);
+            this.ffValue.TabIndex = 21;
+            // 
+            // ffLabel
+            // 
+            this.ffLabel.AutoSize = true;
+            this.ffLabel.Location = new System.Drawing.Point(88, 43);
+            this.ffLabel.Name = "ffLabel";
+            this.ffLabel.Size = new System.Drawing.Size(68, 13);
+            this.ffLabel.TabIndex = 20;
+            this.ffLabel.Text = "FeatureFlags";
             // 
             // btnReset
             // 
@@ -1300,9 +1285,6 @@
         internal System.Windows.Forms.CheckBox cbAlt;
         internal System.Windows.Forms.CheckBox cbHearth;
         internal System.Windows.Forms.Label LabelCustomizeDesc;
-        internal System.Windows.Forms.TextBox txtProcName;
-        internal System.Windows.Forms.Label LabelProcessNameDesc;
-        internal System.Windows.Forms.Label LabelProcessName;
         internal System.Windows.Forms.CheckBox cbAutoLure;
         internal System.Windows.Forms.TextBox txtHearthKey;
         internal System.Windows.Forms.Label LabelHearthKey;
@@ -1365,5 +1347,7 @@
         internal System.Windows.Forms.CheckBox cbDblRclickCast;
         internal System.Windows.Forms.TextBox ccHotKey;
         internal System.Windows.Forms.Label ccHotKeyLabel;
+        private System.Windows.Forms.Label ffLabel;
+        private System.Windows.Forms.TextBox ffValue;
     }
 }

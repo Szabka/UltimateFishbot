@@ -14,7 +14,7 @@ namespace UltimateFishBot.Classes.BodyParts
             LEFT_RIGHT = 2
         }
 
-        public async Task DoMovement(T2S t2s, CancellationToken cancellationToken)
+        public async Task DoMovement(Mouth mouth, CancellationToken cancellationToken)
         {
             switch ((Path)Properties.Settings.Default.AntiAfkMoves)
             {
@@ -33,8 +33,7 @@ namespace UltimateFishBot.Classes.BodyParts
                     await Task.Delay(500, cancellationToken);
                     break;
             }
-            if (t2s != null)
-                t2s.Say("Anti A F K");
+            mouth?.Say("Anti A F K");
         }
 
         private async Task MovePath(Keys[] moves, CancellationToken cancellationToken)
